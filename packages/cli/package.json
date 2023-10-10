@@ -1,0 +1,37 @@
+{
+  "name": "@vg-code/cli",
+  "version": "1.2.0",
+  "description": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "compiled"
+  ],
+  "bin": {
+    "vg": "bin/vg-cli.js"
+  },
+  "scripts": {
+    "build": "vg-scripts father build",
+    "build:deps": "vg-scripts bundleDeps",
+    "dev": "vg-scripts father dev"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "@vg-code/utils": "workspace:*",
+    "ali-oss": "^6.18.1",
+    "commander": "^11.0.0",
+    "inquirer": "^8.2.6",
+    "ora": "^6.3.1",
+    "yaml": "^2.3.2"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.8",
+    "@types/inquirer": "^8.2.7"
+  }
+}

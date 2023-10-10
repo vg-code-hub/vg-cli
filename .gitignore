@@ -1,0 +1,22 @@
+node_modules
+dist
+.DS_Store
+.turbo
+*.tsbuildinfo
+.jest-cache
+.swc
+/test/**/fixtures/*/dist
+/coverage
+/packages/*/coverage
+/examples/*/coverage
+/.vscode
+/.idea
+/.pnpm-*.log
+/.github_token
+/TMP_CHANGELOG.md
+/.openai_token
+/.github_account
+
+# Ignore declaration files, they are generated from local development
+**/cypress/screenshots/
+**/cypress/videos/

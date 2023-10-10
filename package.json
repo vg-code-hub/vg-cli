@@ -1,0 +1,63 @@
+{
+  "name": "vg-cli",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "rig": "bin/vg.js"
+  },
+  "files": [],
+  "scripts": {
+    "dev": "pnpm run dev:cli",
+    "dev:cli": "pnpm -F @vg-code/cli dev",
+    "build": "vg-scripts turbo build",
+    "build:release": "vg-scripts turbo build --no-cache",
+    "build:pnpm": " pnpm run build:utils && npm run build:cli",
+    "build:cli": "pnpm -F @vg-code/cli build",
+    "build:utils": "pnpm -F @vg-code/utils build",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "publish": "changeset publish --registry=https://registry.npmjs.com/",
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "vg-scripts postinstall",
+    "jest": "jest",
+    "release": "vg-scripts release",
+    "test": "jest",
+    "tsc:check": "tsc --noEmit",
+    "turbo:clean": "rimraf .turbo"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "@pnpm/lockfile-file": "^8.1.1",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.6.2",
+    "@types/qs": "^6.9.7",
+    "@vercel/ncc": "^0.38.0",
+    "@vg-code/utils": "workspace:*",
+    "dts-packer": "^0.0.3",
+    "father": "^4.3.4",
+    "git-repo-info": "^2.1.1",
+    "jest": "^29.7.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.8.4",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "prettier-plugin-packagejson": "^2.4.3",
+    "qs": "^6.11.0",
+    "resolve": "^1.22.0",
+    "rimraf": "^5.0.1",
+    "ts-node": "^10.7.0",
+    "turbo": "^1.9.3",
+    "tsx": "^3.12.2",
+    "vg-scripts": "workspace:*",
+    "zx": "^7.2.3"
+  },
+  "packageManager": "pnpm@8.6.2",
+  "engines": {
+    "node": ">=14",
+    "pnpm": "^8.6.2"
+  }
+}

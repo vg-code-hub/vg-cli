@@ -1,0 +1,48 @@
+type: dart
+swagger:
+  # projectMap:
+  #   3214855: domains/business
+  #   3237635: domains/assets
+  #   3214862: domains/org
+  jsonUrl: http://127.0.0.1:4523/export/openapi?projectId=3214855&version=3.0
+  outputDir: /domains/business/api
+  urlPrefix: business
+  overwrite: true
+  folderMap: {}
+  customPathFolder: {}
+  customModelFolder: {}
+cicd:
+  path_schema: example/{env}/{oem}
+  outdir: dist
+  # web_type: history
+  target:
+    type: alicloud
+    bucket: frontend-projects-assets
+    region: oss-cn-hangzhou
+    access_key: ${ak}
+    access_secret: ${as}
+    qyapi_key: ${qyapi_key}
+    root_path: /
+    uri_rewrite: {}
+  endpoints:
+    example/qa/rys: 
+      build: pnpm build
+      domains: [qa-xscreen.grizzlychina.com]
+      uri_rewrite:
+        original: /example-qyz/qa
+        original_regexp: ^/example-qyz/qa
+    example/qa/jiaog: 
+      build: pnpm build
+      domains: [qa-xscreen.grizzlychina.com]
+      uri_rewrite:
+        original: /example-main/qa
+        original_regexp: ^/example-main/qa
+    example/prod/rys:
+      build: pnpm build
+      domains: [xscreen.grizzlychina.com]
+      uri_rewrite: 
+        original: '/example'
+        original_regexp: '^/example'
+  groups: []
+      
+    

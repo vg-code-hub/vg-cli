@@ -1,0 +1,81 @@
+{
+  "name": "@vg-code/utils",
+  "version": "1.1.0",
+  "description": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "compiled"
+  ],
+  "scripts": {
+    "build": "vg-scripts father build",
+    "build:deps": "vg-scripts bundleDeps",
+    "dev": "vg-scripts father dev"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "chokidar": "3.5.3",
+    "path-scurry": "^1.10.1",
+    "pino": "7.11.0"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "6.0.2",
+    "@types/fs-extra": "^11.0.1",
+    "@types/glob": "8.0.0",
+    "@types/lodash": "4.14.191",
+    "@types/rimraf": "3.0.2",
+    "@types/semver": "7.3.13",
+    "@types/tar": "6.1.4",
+    "@types/uuid": "^9.0.4",
+    "axios": "0.27.2",
+    "chalk": "5.0.1",
+    "cross-spawn": "^7.0.3",
+    "execa": "6.1.0",
+    "fs-extra": "11.1.0",
+    "glob": "8.0.3",
+    "import-lazy": "4.0.0",
+    "lodash": "4.17.21",
+    "ora": "^6.3.1",
+    "rimraf": "3.0.2",
+    "semver": "7.3.8",
+    "tar": "6.1.13",
+    "uuid": "^9.0.1"
+  },
+  "compiledConfig": {
+    "deps": [
+      "axios",
+      "chalk",
+      "cross-spawn",
+      "execa",
+      "fs-extra",
+      "glob",
+      "import-lazy",
+      "lodash",
+      "ora",
+      "rimraf",
+      "semver",
+      "tar",
+      "uuid"
+    ],
+    "externals": {
+      "axios": "$$LOCAL",
+      "chalk": "$$LOCAL",
+      "cross-spawn": "$$LOCAL",
+      "execa": "$$LOCAL",
+      "fs-extra": "$$LOCAL",
+      "glob": "$$LOCAL",
+      "import-lazy": "$$LOCAL",
+      "lodash": "$$LOCAL",
+      "ora": "$$LOCAL",
+      "rimraf": "$$LOCAL",
+      "semver": "$$LOCAL",
+      "uuid": "$$LOCAL"
+    }
+  }
+}

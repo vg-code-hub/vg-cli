@@ -1,0 +1,26 @@
+{
+  "name": "@vg-code/swagger2restapi",
+  "version": "1.2.0",
+  "description": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "compiled"
+  ],
+  "scripts": {
+    "build": "vg-scripts father build",
+    "build:deps": "vg-scripts bundleDeps",
+    "dev": "vg-scripts father dev"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "@vg-code/utils": "workspace:*",
+    "ora": "^6.3.1"
+  }
+}
