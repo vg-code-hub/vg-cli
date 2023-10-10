@@ -41,8 +41,8 @@ cicd:
       build: pnpm build
       domains: [xscreen.grizzlychina.com]
       uri_rewrite: 
-        original: '/example'
-        original_regexp: '^/example'
+        original: /example
+        original_regexp: ^/example
   groups: []
       
     

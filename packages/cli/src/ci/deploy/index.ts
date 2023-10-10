@@ -6,11 +6,11 @@
  * @FilePath: /vg-cli/packages/cli/src/ci/deploy/index.ts
  * @Description:
  */
+import { CIConfig } from '@/config';
 import { CMDObj } from '@@/types';
 import { logger } from '@vg-code/utils';
 import fs from 'fs';
 import path from 'path';
-import CIConfig from '../config';
 import AliOSS from './ali_oss';
 
 let filesList: string[] = [];

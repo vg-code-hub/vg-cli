@@ -1,7 +1,7 @@
+import { CIConfig } from '@/config';
 import { CMDObj } from '@@/types';
 import { axios, logger } from '@vg-code/utils';
 import { Options, Ora } from 'ora';
-import CIConfig from '../config';
 import CDN from './cdn';
 
 // const ora = import('ora');

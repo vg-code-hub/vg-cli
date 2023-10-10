@@ -2,14 +2,15 @@
  * @Author: jimmyZhao
  * @Date: 2023-09-14 11:29:07
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-10-10 12:57:16
+ * @LastEditTime: 2023-10-10 18:14:32
  * @FilePath: /vg-cli/scripts/.internal/utils.ts
  * @Description:
  */
-import { logger } from '@vg-code/utils';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { fs, logger } from '@vg-code/utils';
 import { join } from 'path';
 import { PATHS } from './constants';
+
+const { existsSync, readdirSync, readFileSync, writeFileSync } = fs;
 
 export function getPkgs(opts?: { base?: string }): string[] {
   const base = opts?.base || PATHS.PACKAGES;

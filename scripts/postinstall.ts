@@ -1,6 +1,16 @@
-import { readFileSync, writeFileSync } from 'fs';
+/*
+ * @Author: jimmyZhao
+ * @Date: 2023-09-19 21:56:23
+ * @LastEditors: jimmyZhao
+ * @LastEditTime: 2023-10-10 18:16:17
+ * @FilePath: /vg-cli/scripts/postinstall.ts
+ * @Description:
+ */
+import { fs } from '@vg-code/utils';
 import { join } from 'path';
 import { PATHS } from './.internal/constants';
+
+const { readFileSync, writeFileSync } = fs;
 
 // ref: https://github.com/isaacs/node-graceful-fs/commit/e61a20a052b838f420b98195c232a824a6ac04ee
 const GRACEFUL_FS_TO_REPLACE = `if(j.uid<0)j.uid+=4294967296;if(j.gid<0)j.gid+=4294967296;`;

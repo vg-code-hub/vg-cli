@@ -6,10 +6,10 @@
  * @FilePath: /vg-cli/packages/cli/src/ci/build/index.ts
  * @Description:
  */
+import { CIConfig } from '@/config';
 import { CMDObj } from '@@/types';
 import { logger, spawnSync } from '@vg-code/utils';
 import path from 'path';
-import CIConfig from '../config';
 
 export default async (cmd: CMDObj) => {
   logger.wait('start building ...');

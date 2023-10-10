@@ -2,7 +2,7 @@
  * @Author: jimmyZhao
  * @Date: 2023-09-18 11:47:07
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-10-09 16:23:03
+ * @LastEditTime: 2023-10-10 17:54:12
  * @FilePath: /vg-cli/packages/cli/types/index.d.ts
  * @Description: 
  */
@@ -76,6 +76,7 @@ export interface CIConfigType {
 
 export interface CMDObj {
 	args: string[]; 
+	options?: Record<string, boolean>; 
 	schema: string; 
 	params: string;
 }
