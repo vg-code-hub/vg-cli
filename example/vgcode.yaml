@@ -1,4 +1,6 @@
 type: dart
+mock:
+  include: ['src/pages/**/_mock.ts']
 swagger:
   # projectMap:
   #   3214855: domains/business
@@ -22,24 +24,22 @@ cicd:
     access_key: ${ak}
     access_secret: ${as}
     qyapi_key: ${qyapi_key}
-    root_path: /
-    uri_rewrite: {}
   endpoints:
-    example/qa/rys: 
+    example/qa/main: 
       build: pnpm build
-      domains: [qa-xscreen.grizzlychina.com]
+      domains: [fe.grizzlychina.com]
       uri_rewrite:
-        original: /example-qyz/qa
-        original_regexp: ^/example-qyz/qa
+        original: /example-main/qa
+        original_regexp: ^/example-main/qa
     example/qa/jiaog: 
       build: pnpm build
-      domains: [qa-xscreen.grizzlychina.com]
+      domains: [fe.grizzlychina.com]
       uri_rewrite:
         original: /example-main/qa
         original_regexp: ^/example-main/qa
     example/prod/rys:
       build: pnpm build
-      domains: [xscreen.grizzlychina.com]
+      domains: [fe.grizzlychina.com]
       uri_rewrite: 
         original: /example
         original_regexp: ^/example

@@ -7,7 +7,6 @@
     source: {
       root_path: "dist",
     },
-    web_entry_path: '/',
     target: {
       id: "alicloud",
       type: "alicloud",
@@ -54,7 +53,6 @@
 |:---|:---|:---|:---|
 |path_schema|打包文件目录在source.root_path下前缀||
 |source.root_path|打包文件所在目录|dist|
-|web_entry_path|网站访问的根目录|/|有的网页首页不是用/直接访问，而是例如：https://domain.com/path_to_index|
 
 |target字段|说明|默认值|备注|
 |:---|:---|:---|:---|

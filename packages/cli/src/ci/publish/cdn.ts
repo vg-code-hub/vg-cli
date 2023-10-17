@@ -1,4 +1,4 @@
-import { DeployTarget } from '@@/types';
+import { DeployTarget } from '@/config/types';
 import { axios, uuid } from '@vg-code/utils';
 import crypto from 'crypto';
 import qs from 'qs';

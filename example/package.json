@@ -4,14 +4,12 @@
   "author": "jimmyZhao <jimmyzhao163@163.com>",
   "scripts": {
     "dev": "umi dev",
-    "build": "cross-env OUTPUT_PATH=dist/example/qa/rys & umi build",
+    "build": "umi build",
+    "preview": "umi preview",
     "postinstall": "umi setup",
-    "setup": "umi setup",
     "start": "npm run dev",
-    "vg": "vg",
-    "vg-build": "vg build example/qa/%/1.0.0",
-    "vg-deploy": "vg deploy example/qa/%/1.0.0 -p 'ak=$1&as=$2'",
-    "vg-publish": "vg publish example/qa/%/1.0.0 -p 'ak=$1&as=$2&qyapi_key=$3'"
+    "vg-preview": "vg preview example/qa/jiaog/1.0.2",
+    "vg-mock": "vg mock"
   },
   "dependencies": {
     "umi": "^4.0.81"

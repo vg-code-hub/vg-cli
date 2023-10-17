@@ -32,6 +32,30 @@
   },
   "devDependencies": {
     "@types/ali-oss": "^6.16.8",
-    "@types/inquirer": "^8.2.7"
+    "@types/body-parser": "1.19.2",
+    "@types/compression": "^1.7.3",
+    "@types/express": "4.17.17",
+    "@types/inquirer": "^8.2.7",
+    "@types/multer": "1.4.7",
+    "body-parser": "1.20.0",
+    "compression": "1.7.4",
+    "express": "4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "multer": "1.4.4",
+    "path-to-regexp": "1.7.0",
+    "sirv": "2.0.2"
+  },
+  "compiledConfig": {
+    "deps": [
+      "body-parser",
+      "compression",
+      "express",
+      "http-proxy-middleware",
+      "multer",
+      "path-to-regexp",
+      "sirv"
+    ],
+    "externals": {},
+    "excludeDtsDeps": []
   }
 }

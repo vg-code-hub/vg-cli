@@ -2,11 +2,11 @@
  * @Author: jimmyZhao
  * @Date: 2023-09-18 12:05:13
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-09-21 22:09:35
- * @FilePath: /vg-cli/packages/cli/src/ci/config/level.ts
+ * @LastEditTime: 2023-10-16 16:13:08
+ * @FilePath: /vg-cli/packages/cli/src/config/ci_config/level.ts
  * @Description:
  */
-import regex from '@/ci/utils/regex_helper';
+import regex from '../utils/regex_helper';
 
 class DirLevel {
   /**

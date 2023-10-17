@@ -1,5 +1,5 @@
-import { CIConfig } from '@/config';
-import { CMDObj } from '@@/types';
+import { VGConfig } from '@/config';
+import { CMDObj } from '@/config/types';
 import { axios, logger } from '@vg-code/utils';
 import { Options, Ora } from 'ora';
 import CDN from './cdn';
@@ -28,7 +28,6 @@ const setRewriteUri = async (
   const configId = rwriteResult?.DomainConfigList.DomainConfigModel[0].ConfigId;
   for (let i = 0; i <= 100; i++) {
     const configInfo = await cdn.describeCdnDomainConfigs(domain, configId);
-    console.log(configInfo);
 
     const domainConfigs = configInfo?.DomainConfigs?.DomainConfig ?? [];
     let successCount = 0;
@@ -121,12 +120,11 @@ export default async (cmd: CMDObj) => {
       }
     };
 
-    const ciConfig = CIConfig.createByDefault(cmd);
+    VGConfig.initConfig(cmd);
+    const ciConfig = VGConfig.ciConfig;
 
     logger.wait('Start Publish...');
-    const target = Array.isArray(ciConfig.target)
-      ? ciConfig.target[0]
-      : ciConfig.target;
+    const target = ciConfig.target;
 
     const cdn = new CDN(target);
     const urls: string[] = [];
@@ -134,24 +132,19 @@ export default async (cmd: CMDObj) => {
       throw new Error('Endpoints.length Can Not Be 0!');
     }
     for (const endpoint of ciConfig.endpoints) {
-      if (
-        !endpoint.uri_rewrite &&
-        (!target.uri_rewrite ||
-          !target.uri_rewrite.original ||
-          !target.uri_rewrite.original_regexp)
-      ) {
+      if (!endpoint.uriRewrite) {
         let webEntryPath = '/';
         for (const domain of endpoint.domains) {
           // mpa|spa-history|spa-hash匹配文件
           setRewriteConfig(domain, `^\\/([^?]*\\.[a-zA-Z0-9]+)($|\\?)`, `/$1`);
-          if (ciConfig.web_type === 'mpa') {
+          if (ciConfig.webType === 'mpa') {
             //mpa匹配非首页
             setRewriteConfig(
               domain,
               '^\\/([\\w-/]*\\w+)(?![^?]*\\.\\w+)',
               `/${endpoint.deployDir.replace(/\\/g, '/')}/$1.html`,
             );
-          } else if (ciConfig.web_type === 'history') {
+          } else if (ciConfig.webType === 'history') {
             //spa/history匹配非首页
             setRewriteConfig(
               domain,
@@ -168,38 +161,36 @@ export default async (cmd: CMDObj) => {
           urls.push(`https://${domain}${webEntryPath}`);
         }
       } else {
-        const uriRewrite = endpoint.uri_rewrite
-          ? endpoint.uri_rewrite
-          : target.uri_rewrite;
-
+        const uriRewrite = endpoint.uriRewrite;
         if (!uriRewrite) {
           continue;
         }
 
         for (const domain of endpoint.domains) {
           // mpa|spa-history|spa-hash匹配文件
-          if (ciConfig.web_type !== 'hash') {
+          setRewriteConfig(domain, '^\\/([^?]*\\.[a-zA-Z0-9]+)($|\\?)', `/$1`);
+          if (ciConfig.webType === 'history') {
             setRewriteConfig(
               domain,
-              '^\\/([^?]*\\.[a-zA-Z0-9]+)($|\\?)',
-              `/${endpoint.deployDir.replace(/\\/g, '/')}/$1`,
+              `${
+                uriRewrite.original_regexp
+                  ? uriRewrite.original_regexp
+                  : uriRewrite.original
+              }`,
+              `/${endpoint.deployDir.replace(/\\/g, '/')}/index.html`,
             );
           } else {
             setRewriteConfig(
               domain,
-              '^\\/([^?]*\\.[a-zA-Z0-9]+)($|\\?)',
-              `/$1`,
+              `${
+                uriRewrite.original_regexp
+                  ? uriRewrite.original_regexp
+                  : uriRewrite.original
+              }`,
+              `/${endpoint.deployDir.replace(/\\/g, '/')}/index.html`,
             );
           }
-          setRewriteConfig(
-            domain,
-            `${
-              uriRewrite.original_regexp
-                ? uriRewrite.original_regexp
-                : uriRewrite.original
-            }`,
-            `/${endpoint.deployDir.replace(/\\/g, '/')}/index.html`,
-          );
+
           urls.push(`https://${domain}${uriRewrite.original}`);
         }
       }
@@ -239,17 +230,15 @@ export default async (cmd: CMDObj) => {
     if (target.qyapi_key) {
       var content = '';
       ciConfig.endpoints.map((p) => {
-        var projectName = p.dirStrArr[0];
+        var projectName = p.dirArr[0].name;
         if (!content)
           content = `项目${projectName}部署成功${
             ciConfig.endpoints.length > 1
               ? `, 共<font color=\"warning\">${ciConfig.endpoints.length}</font>个 endpoint`
               : ''
           }\n\n`;
-        var original = p.uri_rewrite?.original;
-        if (p.domain) {
-          content += `[${p.domain}](http://${p.domain}${original})\n\n`;
-        } else if (p.domains) {
+        var original = p.uriRewrite?.original;
+        if (p.domains) {
           p.domains.forEach((domain) => {
             content += `[${domain}](http://${domain}${original})\n\n`;
           });

@@ -20,3 +20,5 @@ dist
 # Ignore declaration files, they are generated from local development
 **/cypress/screenshots/
 **/cypress/videos/
+
+deploy.local.sh

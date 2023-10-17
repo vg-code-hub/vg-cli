@@ -2,11 +2,11 @@
  * @Author: jimmyZhao
  * @Date: 2023-10-10 17:35:45
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-10-10 22:13:49
+ * @LastEditTime: 2023-10-17 11:22:49
  * @FilePath: /vg-cli/packages/cli/src/swagger2restapi/init.ts
  * @Description:
  */
-import { CMDObj } from '@@/types';
+import { CMDObj } from '@/config/types';
 import { chalk, fs, logger, spawnSync } from '@vg-code/utils';
 import { find } from '@vg-code/utils/compiled/lodash';
 import inquirer from 'inquirer';
@@ -43,14 +43,11 @@ async function saveMaterials() {
     logger.error(`exists ${materialDir}`);
     return;
   }
-  spawnSync(`git clone ${repository} ${materialDir}`, { cwd: process.cwd() });
+  spawnSync(`git clone ${repository} ${materialDir}`, { cwd: Env.cwd });
   logger.ready('init material success');
 }
 
-export default async (cmd: CMDObj) => {
-  const { options } = cmd;
-  console.log(cmd);
-
+export default async ({ options }: CMDObj) => {
   if (!options || Object.keys(options).length === 0) {
     logger.error(
       'please config type,',

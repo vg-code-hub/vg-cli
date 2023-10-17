@@ -2,12 +2,12 @@
  * @Author: jimmyZhao
  * @Date: 2023-09-18 12:00:23
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-09-22 10:37:00
+ * @LastEditTime: 2023-10-17 14:25:30
  * @FilePath: /vg-cli/packages/cli/src/ci/deploy/index.ts
  * @Description:
  */
-import { CIConfig } from '@/config';
-import { CMDObj } from '@@/types';
+import { Env, VGConfig } from '@/config';
+import { CMDObj } from '@/config/types';
 import { logger } from '@vg-code/utils';
 import fs from 'fs';
 import path from 'path';
@@ -33,11 +33,10 @@ const traverseFolder = (url: string) => {
 export default async (cmd: CMDObj) => {
   try {
     logger.wait('Start Deploy...');
-    const ciConfig = CIConfig.createByDefault(cmd);
+    VGConfig.initConfig(cmd);
+    const ciConfig = VGConfig.ciConfig;
     logger.info({ endpoints: ciConfig.endpoints, outdir: ciConfig.outdir });
-    const target = Array.isArray(ciConfig.target)
-      ? ciConfig.target[0]
-      : ciConfig.target;
+    const target = ciConfig.target;
     logger.info('oss tagert', target);
     const aliOss = new AliOSS(target);
     logger.info('Please Wait for Upload OSS...');
@@ -46,7 +45,7 @@ export default async (cmd: CMDObj) => {
     }
     for (let i = 0; i < ciConfig.endpoints.length; i++) {
       const distPath = path.join(
-        process.cwd(),
+        Env.cwd,
         ciConfig.outdir,
         ciConfig.endpoints[i].deployDir,
       );

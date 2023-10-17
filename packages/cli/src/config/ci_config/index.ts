@@ -2,38 +2,34 @@
  * @Author: jimmyZhao
  * @Date: 2023-09-21 22:11:04
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-09-28 07:39:45
- * @FilePath: /vg-cli/packages/cli/src/ci/config/index.ts
+ * @LastEditTime: 2023-10-17 11:39:31
+ * @FilePath: /vg-cli/packages/cli/src/config/ci_config/index.ts
  * @Description:
  */
-import { CIConfigType, CMDObj, DeployTarget } from '@@/types';
-import fs from 'fs';
 import path from 'path';
 import qs from 'qs';
-import { parse } from 'yaml';
+import { CIConfigType, CMDObj, DeployTarget } from '../types';
 import Endpoint from './endpoint';
 import DirLevel from './level';
 
 class CIConfig {
-  web_type: 'hash' | 'history' | 'mpa';
+  webType: 'hash' | 'history' | 'mpa';
   outdir: string;
-  target: DeployTarget | DeployTarget[];
+  target: DeployTarget;
   endpoints: Endpoint[];
 
-  constructor(config: CIConfigType) {
-    this.web_type = config.web_type || 'hash';
+  constructor(
+    config: Omit<CIConfigType, 'endpoints'> & { endpoints: Endpoint[] },
+  ) {
+    this.webType = config.web_type || 'hash';
     this.outdir = config.outdir;
     this.target = config.target;
     this.endpoints = config.endpoints;
   }
 
-  static createByDefault({ args, schema, params }: CMDObj) {
-    let config = parse(
-      fs.readFileSync(`${process.cwd()}/vgcode.yaml`, 'utf8'),
-    ).cicd;
+  static createByDefault({ args, options }: CMDObj, config: CIConfigType) {
     let configStr = JSON.stringify(config);
-
-    const paramObj = qs.parse(params);
+    const paramObj = qs.parse(options?.params ?? '');
 
     Object.keys(paramObj).forEach((key) => {
       const regStr = `\\$\\{${key}\\}`;
@@ -43,36 +39,20 @@ class CIConfig {
     config = JSON.parse(configStr);
 
     var treeSchema = config.path_schema;
+    const dirLevels = DirLevel.createSchema(treeSchema);
 
-    const dirLevel = DirLevel.createSchema(treeSchema);
-
-    let endpoints = Endpoint.createEndpointArr(config, dirLevel);
-    const dirArr = this.getDirInSchemaStrArr(
-      {
-        args,
-        schema,
-      },
-      dirLevel,
-    );
+    let endpoints = Endpoint.createEndpointArr(config, dirLevels);
+    const dirArr = this.getDirInSchemaStrArr({ args }, dirLevels);
     endpoints = this.createTargetEndpoints(endpoints, dirArr);
 
     return new CIConfig({ ...config, endpoints });
   }
 
   private static getDirInSchemaStrArr(
-    { args, schema }: Omit<CMDObj, 'params'>,
+    { args }: Pick<CMDObj, 'args'>,
     dirLevel: DirLevel[],
   ) {
     let dir = args![0];
-    const schemaKeys = dir.match(/(?<=\{)[a-zA-Z]+(?=\})/g) || [];
-    const schemaObj = qs.parse(schema);
-
-    for (let key of schemaKeys) {
-      const val = schemaObj[key];
-      if (val) {
-        dir = dir.replace(`{${key}}`, val as string);
-      }
-    }
     const dirStrArr = dir.split('/').filter((str: string) => str.length > 0);
     const dirInSchemaStrArr = dir
       .split('/')
@@ -97,7 +77,6 @@ class CIConfig {
         .join('/');
       endpoints = endpoints.map((ep) => {
         ep.deployDir = path.join(ep.deployDir, sufDir);
-        ep.publicPath = ep.deployDir;
         return ep;
       });
     }

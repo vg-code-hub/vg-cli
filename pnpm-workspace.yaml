@@ -2,4 +2,5 @@ packages:
   - 'packages/*'
   - 'docs'
   - 'example'
+  - 'example-vue'
   - 'scripts'

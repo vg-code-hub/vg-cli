@@ -22,5 +22,6 @@
   "dependencies": {
     "@vg-code/utils": "workspace:*",
     "ora": "^6.3.1"
-  }
+  },
+  "devDependencies": {}
 }

@@ -6,7 +6,7 @@
  * @FilePath: /vg-cli/packages/ci/src/deploy/ali_oss.ts
  * @Description:
  */
-import { DeployTarget } from '@@/types';
+import { DeployTarget } from '@/config/types';
 import aliOSS from 'ali-oss';
 import fs from 'fs';
 import os from 'os';

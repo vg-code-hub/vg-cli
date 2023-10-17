@@ -1,19 +1,23 @@
 /*
  * @Author: jimmyZhao
- * @Date: 2023-09-14 11:08:16
+ * @Date: 2023-10-11 19:10:18
  * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-10-10 22:12:57
+ * @LastEditTime: 2023-10-17 15:24:11
  * @FilePath: /vg-cli/packages/cli/src/index.ts
  * @Description:
  */
 import { logger, semver } from '@vg-code/utils';
 import { Command } from 'commander';
-import { build, deploy, publish } from './ci';
+import bodyParser from '../compiled/body-parser';
+import compression from '../compiled/compression';
+import express, { RequestHandler } from '../compiled/express';
+import { createProxyMiddleware } from '../compiled/http-proxy-middleware';
+import multer from '../compiled/multer';
+import pathToRegexp from '../compiled/path-to-regexp';
+import sirv from '../compiled/sirv';
+import { build, deploy, preview, publish } from './ci';
+import { mock } from './mock';
 import { init } from './swagger2restapi';
-
-// const inquirer: typeof import('inquirer') = importLazy(
-//   require.resolve('inquirer'),
-// );
 
 const nodeMin = '16.0.0';
 if (semver.gte(nodeMin, process.version)) {
@@ -23,68 +27,74 @@ if (semver.gte(nodeMin, process.version)) {
 
 const program = new Command();
 
-program.command('help').action((...rests) => {
-  console.log(rests);
-
-  logger.info('help vg', { args: program.args.slice(1), ...program.opts() });
+program.command('help').action((options) => {
+  logger.info('help vg', { args: program.args.slice(1), options });
 });
 
 /// CI start --->
 program
   .command('build')
-  .option('-s, --schema <schema>', 'specify params in tree_schema')
   .option(
     '-p , --params <params>',
-    'replace words in cicd.rig.json5, only words in ${} are replacable',
+    'replace words in vgcode.yaml cicd config, only words in ${} are replacable',
   )
-  .action((...rests) =>
+  .action((options) =>
     build({
-      ...Object.assign({}, rests[0], program.opts()),
+      options,
       args: program.args.slice(1),
     }),
   );
 
 program
   .command('deploy')
-  .option('-s, --schema <schema>', 'specify params in tree_schema')
   .option(
     '-p , --params <params>',
-    'replace words in cicd.rig.json5, only words in ${} are replacable',
+    'replace words in vgcode.yaml cicd config, only words in ${} are replacable',
   )
-  .action((...rests) => {
-    let options = Object.assign({}, rests[0], program.opts());
-    console.log(options);
-    deploy({ ...options, args: program.args.slice(1) });
-  });
+  .action((options) => deploy({ options, args: program.args.slice(1) }));
 
 program
   .command('publish')
-  .option('-s, --schema <schema>', 'specify params in tree_schema')
   .option(
     '-p , --params <params>',
-    'replace words in cicd.rig.json5, only words in ${} are replacable',
+    'replace words in vgcode.yaml cicd config, only words in ${} are replacable',
   )
-  .action((...rests) =>
-    publish({
-      ...Object.assign({}, rests[0], program.opts()),
-      args: program.args.slice(1),
-    }),
-  );
+  .action((options) => publish({ options, args: program.args.slice(1) }));
+
+program
+  .command('preview')
+  .option('-b , --basename <params>', 'history router basename')
+  .option('-o , --outdir <params>', 'build output path', 'dist')
+  .action((options) => {
+    return preview({ options, args: program.args.slice(1) });
+  });
 /// CI end --->
+
+/// DEV start --->
+program
+  .command('mock')
+  .description('https://umijs.org/docs/guides/mock')
+  .action((options) => mock({ options, args: program.args.slice(1) }));
+/// DEV end --->
 
 program
   .command('init')
   .option('-c, --config', 'init config file')
   .option('-m, --material', 'init common materials')
   .option('-e, --env <env>', 'publish env')
-  .action((...rests) =>
-    init({
-      ...Object.assign({}, rests[0], program.opts()),
-      options: rests[0],
-      args: program.args.slice(1),
-    }),
-  );
+  .action((options) => init({ options, args: program.args.slice(1) }));
 
 program.version(require('../package.json').version, '-v,--version');
 
 program.parse(process.argv);
+
+export {
+  express,
+  RequestHandler,
+  sirv,
+  bodyParser,
+  compression,
+  pathToRegexp,
+  multer,
+  createProxyMiddleware,
+};
