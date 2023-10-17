@@ -1,5 +1,16 @@
 # @vg-code/cli
 
+## 1.3.0
+
+### Minor Changes
+
+- add mock and preview
+
+### Patch Changes
+
+- Updated dependencies
+  - @vg-code/utils@1.2.0
+
 ## 1.2.0
 
 ### Minor Changes

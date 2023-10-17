@@ -1,5 +1,10 @@
 <!--
 
+## 1.2.0
+### Minor Changes
+
+- add mock and preview
+
 ## 1.1.0
 ### Minor Changes
 
