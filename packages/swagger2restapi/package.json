@@ -1,6 +1,6 @@
 {
   "name": "@vg-code/swagger2restapi",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "",
   "license": "MIT",
   "main": "dist/index.js",

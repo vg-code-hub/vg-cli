@@ -1,13 +1,12 @@
 {
   "name": "@vg-code/utils",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "",
+  "keywords": [],
   "license": "MIT",
+  "author": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "publishConfig": {
-    "access": "public"
-  },
   "files": [
     "dist",
     "compiled"
@@ -17,8 +16,6 @@
     "build:deps": "vg-scripts bundleDeps",
     "dev": "vg-scripts father dev"
   },
-  "keywords": [],
-  "author": "",
   "dependencies": {
     "chokidar": "3.5.3",
     "esbuild": "0.17.19",
@@ -34,7 +31,6 @@
     "@types/semver": "7.3.13",
     "@types/tar": "6.1.4",
     "@types/uuid": "^9.0.4",
-    "axios": "0.27.2",
     "chalk": "5.0.1",
     "cross-spawn": "^7.0.3",
     "execa": "6.1.0",
@@ -49,9 +45,11 @@
     "tar": "6.1.13",
     "uuid": "^9.0.1"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "compiledConfig": {
     "deps": [
-      "axios",
       "chalk",
       "cross-spawn",
       "execa",
@@ -67,7 +65,6 @@
       "uuid"
     ],
     "externals": {
-      "axios": "$$LOCAL",
       "chalk": "$$LOCAL",
       "cross-spawn": "$$LOCAL",
       "execa": "$$LOCAL",

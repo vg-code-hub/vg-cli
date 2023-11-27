@@ -1,6 +1,6 @@
 import { VGConfig } from '@/config';
 import { CMDObj } from '@/config/types';
-import { axios, logger } from '@vg-code/utils';
+import { logger } from '@vg-code/utils';
 import { Options, Ora } from 'ora';
 import CDN from './cdn';
 
@@ -24,10 +24,20 @@ const setRewriteUri = async (
     Array.isArray(deployDir) ? deployDir : [deployDir],
     ['enhance_break'],
   );
-
-  const configId = rwriteResult?.DomainConfigList.DomainConfigModel[0].ConfigId;
+  const domainConfigModel =
+    rwriteResult.body.domainConfigList?.domainConfigModel;
+  if (!domainConfigModel) {
+    throw new Error('setRewriteUri fail');
+  }
+  let configId = domainConfigModel[0].configId;
+  if (!configId) {
+    throw new Error('setRewriteUri fail');
+  }
   for (let i = 0; i <= 100; i++) {
-    const configInfo = await cdn.describeCdnDomainConfigs(domain, configId);
+    const configInfo = await cdn.describeCdnDomainConfigs(
+      domain,
+      configId.toString(),
+    );
 
     const domainConfigs = configInfo?.DomainConfigs?.DomainConfig ?? [];
     let successCount = 0;
@@ -56,16 +66,18 @@ const refreshCache = async (
   const spinner = ora('Wait For RefreshCache...\n').start();
 
   const refreshResult = await cdn.refreshCache(urls.join('\n'));
-  logger.info(refreshResult);
+  const refreshTaskId = refreshResult.body.refreshTaskId;
+  if (!refreshTaskId) {
+    throw new Error('refresh cache fail');
+  }
 
   for (let i = 0; i <= 100; i++) {
-    const desResult = await cdn.describeRefreshTaskById(
-      refreshResult.RefreshTaskId,
-    );
+    const desResult = await cdn.describeRefreshTaskById(refreshTaskId);
     let successCount = 0;
-    logger.info({ desResult });
-    if (!desResult) continue;
-    for (const item of desResult.Tasks) {
+
+    const tasks = desResult.body.tasks;
+    if (!tasks) continue;
+    for (const item of tasks) {
       if (item.Status === 'Complete') {
         successCount++;
       } else if (item.Status === 'Failed') {
@@ -73,7 +85,7 @@ const refreshCache = async (
       }
     }
 
-    if (successCount === desResult.Tasks.length) {
+    if (successCount === tasks.length) {
       break;
     }
     if (i === 100) {
@@ -87,15 +99,19 @@ const refreshCache = async (
 async function qyapiSendMsg(key: string, data: Object) {
   logger.info('Send Msg...');
 
-  axios
-    .post('https://qyapi.weixin.qq.com/cgi-bin/webhook/send', data, {
-      params: { key },
+  fetch('https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + key, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => {
+      logger.info('Send Msg success', json);
     })
-    .then(() => {
-      logger.info('Send Msg success');
-    })
-    .catch(() => {
-      logger.info('Send Msg fail');
+    .catch((error) => {
+      logger.info('Send Msg fail', error);
     });
 }
 
@@ -229,10 +245,11 @@ export default async (cmd: CMDObj) => {
 
     if (target.qyapi_key) {
       var content = '';
+
       ciConfig.endpoints.map((p) => {
         var projectName = p.dirArr[0].name;
         if (!content)
-          content = `项目${projectName}部署成功${
+          content = `项目\`${projectName}\`部署成功${
             ciConfig.endpoints.length > 1
               ? `, 共<font color=\"warning\">${ciConfig.endpoints.length}</font>个 endpoint`
               : ''
@@ -240,10 +257,11 @@ export default async (cmd: CMDObj) => {
         var original = p.uriRewrite?.original;
         if (p.domains) {
           p.domains.forEach((domain) => {
-            content += `[${domain}](http://${domain}${original})\n\n`;
+            content += `[${domain}${original}](http://${domain}${original})\n\n`;
           });
         }
       });
+      // console.log(ciConfig.endpoints, content);
 
       qyapiSendMsg(target.qyapi_key, {
         msgtype: 'markdown',

@@ -1,17 +1,9 @@
 import { DeployTarget } from '@/config/types';
-import { axios, uuid } from '@vg-code/utils';
-import crypto from 'crypto';
-import qs from 'qs';
+import Cdn20180510, * as $Cdn20180510 from '@alicloud/cdn20180510';
+import * as $OpenApi from '@alicloud/openapi-client';
+import * as $Util from '@alicloud/tea-util';
 
 type TFlag = 'break' | 'enhance_break' | null;
-
-enum CDNInterfaceEnum {
-  BatchSetCdnDomainConfig = 'BatchSetCdnDomainConfig', //批量修改域名信息
-  RefreshObjectCaches = 'RefreshObjectCaches', //刷新节点上的文件内容
-  PushObjectCache = 'PushObjectCache', //预热CDN节点
-  DescribeRefreshTaskById = 'DescribeRefreshTaskById', //通过任务编号查询刷新预热任务信息
-  DescribeCdnDomainConfigs = 'DescribeCdnDomainConfigs', // 获取加速域名的配置信息
-}
 
 class CDN {
   AccessKeySecret: string;
@@ -21,47 +13,53 @@ class CDN {
     this.AccessKeySecret = target.access_secret;
   }
   /**
-   * 访问CDN通用接口
-   * @param {接口名称} actionName
-   * @param {各接口定制化参数} paramObj
-   * @returns
+   * 使用AK&SK初始化账号Client
+   * @param accessKeyId
+   * @param accessKeySecret
+   * @return Client
+   * @throws Exception
    */
-  private async getCdnData(actionName: string, paramObj: Object) {
-    let config = {
-      Action: actionName,
-      Format: 'JSON',
-      Version: '2018-05-10',
-      AccessKeyId: this.AccessKeyId,
-      SignatureMethod: 'HMAC-SHA1',
-      Timestamp: new Date().toISOString(),
-      SignatureVersion: '1.0',
-      SignatureNonce: uuid.v1(),
-    };
-    config = Object.assign(config, paramObj);
-    let paramConfig = qs.stringify(config, {
-      sort: (a: any, b: any) => {
-        return a < b ? -1 : 1;
-      },
-      charset: 'utf-8',
+  private createClient(
+    accessKeyId: string,
+    accessKeySecret: string,
+  ): Cdn20180510 {
+    let config = new $OpenApi.Config({
+      // 必填，您的 AccessKey ID
+      accessKeyId: accessKeyId,
+      // 必填，您的 AccessKey Secret
+      accessKeySecret: accessKeySecret,
     });
+    // Endpoint 请参考 https://api.aliyun.com/product/Cdn
+    config.endpoint = `cdn.aliyuncs.com`;
+    return new Cdn20180510(config);
+  }
 
-    const strSign = `GET&%2F&${encodeURIComponent(paramConfig)}`;
-    const hmacSha1 = crypto.createHmac('sha1', `${this.AccessKeySecret}&`);
-    hmacSha1.update(strSign);
-    const signature = hmacSha1.digest('base64');
-    config = Object.assign(config, {
-      Signature: signature,
+  /**
+   * 使用STS鉴权方式初始化账号Client，推荐此方式。
+   * @param accessKeyId
+   * @param accessKeySecret
+   * @param securityToken
+   * @return Client
+   * @throws Exception
+   */
+  private createClientWithSTS(
+    accessKeyId: string,
+    accessKeySecret: string,
+    securityToken: string,
+  ): Cdn20180510 {
+    let config = new $OpenApi.Config({
+      // 必填，您的 AccessKey ID
+      accessKeyId: accessKeyId,
+      // 必填，您的 AccessKey Secret
+      accessKeySecret: accessKeySecret,
+      // 必填，您的 Security Token
+      securityToken: securityToken,
+      // 必填，表明使用 STS 方式
+      type: 'sts',
     });
-    paramConfig = qs.stringify(config, {
-      sort: (a, b) => {
-        return a < b ? -1 : 1;
-      },
-      charset: 'utf-8',
-      format: 'RFC3986',
-    });
-    const url = `http://cdn.ap-southeast-1.aliyuncs.com?${paramConfig}`;
-    const res = await axios.create().get(url);
-    return res.data;
+    // Endpoint 请参考 https://api.aliyun.com/product/Cdn
+    config.endpoint = `cdn.aliyuncs.com`;
+    return new Cdn20180510(config);
   }
 
   /**
@@ -78,42 +76,48 @@ class CDN {
     targetUrls: string[],
     flags: TFlag[],
   ) {
-    try {
-      if (sourceUrls.length !== targetUrls.length) {
-        throw new Error(`sourceUrls's length not equal targetUrls's length`);
-      }
-      const Functions: Object[] = [];
-      sourceUrls.forEach((item, index) => {
-        Functions.push({
-          functionArgs: [
-            {
-              argName: 'source_url',
-              argValue: item,
-            },
-            {
-              argName: 'target_url',
-              argValue: targetUrls[index],
-            },
-            {
-              argName: 'flag',
-              argValue: flags[index] || 'enhance_break',
-            },
-          ],
-          functionName: 'back_to_origin_url_rewrite',
-        });
+    if (sourceUrls.length !== targetUrls.length) {
+      throw new Error(`sourceUrls's length not equal targetUrls's length`);
+    }
+    const functions: Object[] = [];
+    sourceUrls.forEach((item, index) => {
+      functions.push({
+        functionArgs: [
+          {
+            argName: 'source_url',
+            argValue: item,
+          },
+          {
+            argName: 'target_url',
+            argValue: targetUrls[index],
+          },
+          {
+            argName: 'flag',
+            argValue: flags[index] || 'enhance_break',
+          },
+        ],
+        functionName: 'back_to_origin_url_rewrite',
       });
+    });
 
-      const data = await this.getCdnData(
-        CDNInterfaceEnum.BatchSetCdnDomainConfig,
-        {
-          DomainNames: domainName,
-          Functions: JSON.stringify(Functions),
-        },
+    let client = this.createClient(this.AccessKeyId, this.AccessKeySecret);
+    let batchSetCdnDomainConfigRequest =
+      new $Cdn20180510.BatchSetCdnDomainConfigRequest({
+        domainNames: domainName,
+        functions: JSON.stringify(functions),
+      });
+    let runtime = new $Util.RuntimeOptions({});
+    try {
+      return await client.batchSetCdnDomainConfigWithOptions(
+        batchSetCdnDomainConfigRequest,
+        runtime,
       );
-      return data;
-    } catch (e: any) {
-      console.error(`BatchSetCdnDomainConfig Error:`);
-      throw new Error(e.response?.data?.Message);
+    } catch (error: any) {
+      // 错误 message
+      console.error('batchSetCdnDomainConfig err:', error.message);
+      // 诊断地址
+      console.error('batchSetCdnDomainConfig err:', error.data['Recommend']);
+      throw new Error(error.data['Recommend']);
     }
   }
 
@@ -123,21 +127,25 @@ class CDN {
    * @param {刷新的类型 File: 文件; Directory: 目录} objectType
    */
   public async refreshCache(objectPath: string, objectType?: string) {
+    let client = this.createClient(this.AccessKeyId, this.AccessKeySecret);
+    let runtime = new $Util.RuntimeOptions({});
+    let refreshObjectCachesRequest =
+      new $Cdn20180510.RefreshObjectCachesRequest({
+        objectPath,
+        objectType,
+      });
+
     try {
-      let param = {
-        ObjectPath: objectPath,
-      };
-      if (objectType) {
-        param = Object.assign(param, { ObjectType: objectType });
-      }
-      const data = await this.getCdnData(
-        CDNInterfaceEnum.RefreshObjectCaches,
-        param,
+      return await client.refreshObjectCachesWithOptions(
+        refreshObjectCachesRequest,
+        runtime,
       );
-      return data;
-    } catch (e: any) {
-      console.error('RefreshObjectCaches Error:');
-      throw new Error(e.response?.data?.Message);
+    } catch (error: any) {
+      // 错误 message
+      console.error('batchSetCdnDomainConfig err:', error.message);
+      // 诊断地址
+      console.error('batchSetCdnDomainConfig err:', error.data['Recommend']);
+      throw new Error(error.data['Recommend']);
     }
   }
 
@@ -147,10 +155,20 @@ class CDN {
    * @returns
    */
   async pushCache(objectPath: string) {
-    const data = await this.getCdnData(CDNInterfaceEnum.PushObjectCache, {
-      ObjectPath: objectPath,
+    let client = this.createClient(this.AccessKeyId, this.AccessKeySecret);
+    let pushObjectCacheRequest = new $Cdn20180510.PushObjectCacheRequest({
+      objectPath,
     });
-    return data;
+
+    try {
+      return await client.pushObjectCache(pushObjectCacheRequest);
+    } catch (error: any) {
+      // 错误 message
+      console.error('batchSetCdnDomainConfig err:', error.message);
+      // 诊断地址
+      console.error('batchSetCdnDomainConfig err:', error.data['Recommend']);
+      throw new Error(error.data['Recommend']);
+    }
   }
 
   /**
@@ -159,17 +177,25 @@ class CDN {
    * @returns
    */
   async describeRefreshTaskById(taskIds: string) {
+    let client = this.createClient(this.AccessKeyId, this.AccessKeySecret);
+    let describeRefreshTaskByIdRequest =
+      new $Cdn20180510.DescribeRefreshTaskByIdRequest({
+        taskId: taskIds,
+      });
+
     try {
-      const data = await this.getCdnData(
-        CDNInterfaceEnum.DescribeRefreshTaskById,
-        {
-          TaskId: taskIds,
-        },
+      return await client.describeRefreshTaskById(
+        describeRefreshTaskByIdRequest,
       );
-      return data;
-    } catch (e: any) {
-      console.error('DescribeRefreshTaskById Error:');
-      console.error(e.response?.data?.Message);
+    } catch (error: any) {
+      // 错误 message
+      console.error('describeRefreshTaskById ErrorMessage:', error.message);
+      // 诊断地址
+      console.error(
+        'describeRefreshTaskById ErrorRecommend:',
+        error.data['Recommend'],
+      );
+      throw new Error(error.data['Recommend']);
     }
   }
 
@@ -180,18 +206,26 @@ class CDN {
    * @returns
    */
   async describeCdnDomainConfigs(domainName: string, configId?: string) {
+    let client = this.createClient(this.AccessKeyId, this.AccessKeySecret);
+    let describeCdnDomainConfigsRequest =
+      new $Cdn20180510.DescribeCdnDomainConfigsRequest({
+        domainName,
+        configId,
+      });
+
     try {
-      const data = await this.getCdnData(
-        CDNInterfaceEnum.DescribeCdnDomainConfigs,
-        {
-          DomainName: domainName,
-          ConfigId: configId,
-        },
+      return await client.describeCdnDomainConfigs(
+        describeCdnDomainConfigsRequest,
       );
-      return data;
-    } catch (e: any) {
-      console.error('DescribeCdnDomainConfigs Error:');
-      console.error(e.response?.data?.Message);
+    } catch (error: any) {
+      // 错误 message
+      console.error('describeCdnDomainConfigs ErrorMessage:', error.message);
+      // 诊断地址
+      console.error(
+        'describeCdnDomainConfigs ErrorRecommend:',
+        error.data['Recommend'],
+      );
+      throw new Error(error.data['Recommend']);
     }
   }
 }

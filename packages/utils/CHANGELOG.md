@@ -1,5 +1,10 @@
 <!--
 
+## 1.3.0
+### Minor Changes
+
+- update publish cdn
+
 ## 1.2.0
 ### Minor Changes
 

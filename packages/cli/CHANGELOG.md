@@ -1,5 +1,16 @@
 # @vg-code/cli
 
+## 1.4.0
+
+### Minor Changes
+
+- update publish cdn
+
+### Patch Changes
+
+- Updated dependencies
+  - @vg-code/utils@1.3.0
+
 ## 1.3.0
 
 ### Minor Changes
