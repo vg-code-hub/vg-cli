@@ -24,6 +24,8 @@ cicd:
     access_key: ${ak}
     access_secret: ${as}
     qyapi_key: ${qyapi_key}
+    vg_monitor_url: http://localhost:3000/report
+    vg_monitor_key: abcd
   endpoints:
     example/qa/main: 
       build: pnpm build

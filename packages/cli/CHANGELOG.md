@@ -1,5 +1,11 @@
 # @vg-code/cli
 
+## 1.5.0
+
+### Minor Changes
+
+- add sourcemap support
+
 ## 1.4.0
 
 ### Minor Changes

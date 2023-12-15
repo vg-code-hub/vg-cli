@@ -1,9 +1,9 @@
 /*
  * @Author: jimmyZhao
  * @Date: 2023-09-18 12:00:23
- * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-10-17 14:25:30
- * @FilePath: /vg-cli/packages/cli/src/ci/deploy/index.ts
+ * @LastEditors: zdd dongdong@grizzlychina.com
+ * @LastEditTime: 2023-12-15 17:39:36
+ * @FilePath: index.ts
  * @Description:
  */
 import { Env, VGConfig } from '@/config';
@@ -43,6 +43,7 @@ export default async (cmd: CMDObj) => {
     if (!ciConfig.endpoints || ciConfig.endpoints.length === 0) {
       throw new Error('Endpoints.length Can Not Be 0!');
     }
+    const { vg_monitor_url, vg_monitor_key } = target;
     for (let i = 0; i < ciConfig.endpoints.length; i++) {
       const distPath = path.join(
         Env.cwd,
@@ -53,6 +54,19 @@ export default async (cmd: CMDObj) => {
       traverseFolder(distPath);
       await aliOss.putStreamFiles(filesList, ciConfig.outdir);
       filesList = [];
+
+      const sourcemapDir = ciConfig.endpoints[i].deployDir;
+      if (vg_monitor_url && vg_monitor_key) {
+        fetch(vg_monitor_url + '/updateSourcemapDir', {
+          method: 'PUT',
+          body: JSON.stringify({
+            sourcemapDir: sourcemapDir.startsWith('/')
+              ? sourcemapDir
+              : `/${sourcemapDir}`,
+            apikey: vg_monitor_key,
+          }),
+        });
+      }
     }
     logger.ready('Upload OSS Done');
   } catch (e: any) {

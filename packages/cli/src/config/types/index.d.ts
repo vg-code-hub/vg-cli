@@ -1,9 +1,9 @@
 /*
  * @Author: jimmyZhao
  * @Date: 2023-09-18 11:47:07
- * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-10-17 15:24:07
- * @FilePath: /vg-cli/packages/cli/src/config/types/index.d.ts
+ * @LastEditors: zdd dongdong@grizzlychina.com
+ * @LastEditTime: 2023-12-15 17:13:03
+ * @FilePath: index.d.ts
  * @Description: 
  */
 
@@ -15,6 +15,8 @@ export interface DeployTarget {
 	access_key: string;
 	access_secret: string;
 	qyapi_key?: string;
+	vg_monitor_url?: string;
+	vg_monitor_key?: string;
 	root_path: '/';
 	bucket_root_path: '/';
 }

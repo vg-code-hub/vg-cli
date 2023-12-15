@@ -1,9 +1,9 @@
 /*
  * @Author: jimmyZhao
  * @Date: 2023-09-18 11:46:03
- * @LastEditors: jimmyZhao
- * @LastEditTime: 2023-09-18 11:51:46
- * @FilePath: /vg-cli/packages/ci/src/deploy/ali_oss.ts
+ * @LastEditors: zdd dongdong@grizzlychina.com
+ * @LastEditTime: 2023-12-15 17:04:51
+ * @FilePath: ali_oss.ts
  * @Description:
  */
 import { DeployTarget } from '@/config/types';
@@ -62,6 +62,8 @@ class AliOSS {
         path.extname(filesList[i]) === '.ico'
       ) {
         options.headers = { 'Cache-Control': 'max-age=31536000' };
+      } else if (path.extname(filesList[i]) === '.map') {
+        options.headers = { 'x-oss-object-acl': 'private' };
       }
       const fileResult = await this.ossClient.putStream(
         ossPath,
